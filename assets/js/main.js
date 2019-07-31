@@ -16,11 +16,16 @@ const scene = new THREE.Scene();
 const size = 10;
 const divisions = 10;
 const gridHelper = new THREE.GridHelper(size, divisions);
-scene.add(gridHelper);
+//scene.add(gridHelper);
 
 //Fn Helpers
 function item(gltf, nom) {
     return gltf.scene.children.filter(item => item.name === nom)[0];
+}
+
+/* Retourne un Int aléatoire - max en param */
+function getRandomInt(max, min = 1) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 // Load a glTF resource
@@ -28,7 +33,6 @@ var loader = new GLTFLoader();
 loader.load(
     mainScene,
     function (gltf) {
-        console.log(gltf);
 
         scene.add(gltf.scene);
 
@@ -46,12 +50,26 @@ loader.load(
             sidebar = item(gltf, 'sidebar'),
             screen = item(gltf, 'screen');
 
-        console.log(popup.position)
 
-        const tl = new TimelineMax();
-        tl
+        const touchesTl = new TimelineMax();
+        clavier.children[0].children.forEach(touche => {
+            let rand = getRandomInt(6, 3);
+            touchesTl
+                .from(touche.position, rand, { x: getRandomInt(6, -6), y: getRandomInt(6, 0), z: getRandomInt(6, 0), ease: Power2.easeOut }, 0)
+                .from(touche.rotation, rand, { x: getRandomInt(12, -12), y: getRandomInt(12, -12), z: getRandomInt(12, -12), ease: Power2.easeOut }, 0)
+        })
+
+        const clavierTl = new TimelineMax();
+        clavierTl
+            .set(clavier, { visible: true })
+            .from(clavier.position, 2, { y: -0.2, z: 3.5 })
+            .from(clavier.rotation, 1, { y: -0.2, z: 3.5 }, '-=2')
+            .add(touchesTl, '-=2')
+
+        const mainTl = new TimelineMax();
+        mainTl
             .set(globalScene.position, { y: '+=0.5' })
-            .set([casque, popup, lampe, carte, editeur, sidebar, searchbar], { visible: false })
+            .set([casque, clavier, popup, lampe, carte, editeur, sidebar, searchbar], { visible: false })
             .add('screen')
             .from(screen.position, 1, { y: 5, ease: Power4.easeOut })
             .from(screen.rotation, 1, { z: -0.5, ease: Power4.easeOut }, "-=1")
@@ -86,11 +104,12 @@ loader.load(
             .to(carte.position, 1, { x: 0.472, y: 1.45, z: 0.36, ease: Power4.easeOut }, 'popup+=0.2')
             .from(carte.rotation, 1, { x: -5.1, y: -0.1, z: -0.01, ease: Power4.easeOut }, 'carte')
             .to(carte.position, 1, { x: 0.472, y: -0.216, z: 0.46, ease: Power4.easeOut })
+            //Clavier
+            .add(clavierTl, '-=1')
 
 
 
-        console.log(editeur.rotation)
-        //tl.seek('popup')
+        //tl.timeScale(1.4)
 
     },
     null,
