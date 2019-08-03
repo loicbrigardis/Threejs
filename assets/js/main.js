@@ -1,22 +1,31 @@
 import * as THREE from '../../vendors/three.min';
+import { OrbitControls } from '../../vendors/OrbitControls';
 import { GLTFLoader } from '../../vendors/GLTFLoader';
-import TweenMax, { Power4, TimelineMax } from 'gsap/TweenMax';
+import TweenMax, { Power4, TimelineMax, Linear } from 'gsap/TweenMax';
 
 import { onWindowResize } from './resize';
 import { camera } from './camera';
-import { renderer, light } from './renderer';
+import { renderer, hemisphereLight, dirLight } from './renderer';
+import { createParticule, coffeeMaterial } from './geometry';
 
-import screen from '../3d/screen.gltf';
 import mainScene from '../3d/mainScene.glb';
 
-
 const scene = new THREE.Scene();
+const coffeeParticules = new THREE.Group();
+const nbCoffeeParticules = 10;
 
-//Grid Helpers
+//Visial Helpers
 const size = 10;
 const divisions = 10;
 const gridHelper = new THREE.GridHelper(size, divisions);
+
+//debuger chrome
+window.scene = scene;
+window.THREE = THREE;
+
 //scene.add(gridHelper);
+var helper = new THREE.CameraHelper(dirLight.shadow.camera);
+//scene.add(helper);
 
 //Fn Helpers
 function item(gltf, nom) {
@@ -27,12 +36,21 @@ function item(gltf, nom) {
 function getRandomInt(max, min = 1) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+const rand = (min, max) => min + Math.random() * (max - min);
 
 // Load a glTF resource
+
 var loader = new GLTFLoader();
 loader.load(
     mainScene,
     function (gltf) {
+
+        //shadow
+        gltf.scene.traverse(function (node) {
+            if (node.isMesh || node.isLight) node.castShadow = true;
+            if (node.isMesh || node.isLight) node.receiveShadow = true;
+        });
+
 
         scene.add(gltf.scene);
 
@@ -61,7 +79,6 @@ loader.load(
             screen = item(gltf, 'screen'),
             screenClone = { position: { ...screen.position }, rotation: { ...screen.rotation }, scale: { ...screen.scale } };
 
-
         const touchesTl = new TimelineMax();
         clavier.children[0].children.forEach(touche => {
             let rand = getRandomInt(6, 3);
@@ -87,11 +104,24 @@ loader.load(
 
         const mugTl = new TimelineMax({ repeat: -1 });
         mugTl
-            .to(mug.children[1].position, 3, { x: -0.015, y: -0.09, z: -0.021, delay: getRandomInt(8, 4) })
-            .to(mug.position, 0.8, { x: 6, ease: Power2.easeOut })
-            .to(mug.position, 0.8, { x: 1.36, ease: Power2.easeOut })
-            .to(mug.children[1].position, 0, { x: 0.061, y: 0.104, z: 0.087 }, '-=1')
-
+            .to(mug.children[1].position, 3, {
+                x: -0.015, y: -0.09, z: -0.021, delay: getRandomInt(12, 4)
+            })
+            .to(coffeeMaterial, 2, {
+                opacity: 0, ease: Linear.easeNone, onComplete: function () {
+                    coffeeMaterial.visible = false;
+                }
+            }, '-=2')
+            .to(mug.position, 0.8, { x: 6, ease: Expo.easeInOut })
+            .to(mug.position, 0.8, {
+                x: 1.36, ease: Power2.easeOut, delay: getRandomInt(4, 2)
+            })
+            .to(coffeeMaterial, 2, {
+                opacity: 0.5, onStart: function () {
+                    coffeeMaterial.visible = true;
+                }
+            }, '-=0.8')
+            .to(mug.children[1].position, 0, { x: 0.061, y: 0.104, z: 0.087 }, '-=3')
 
         const mainTl = new TimelineMax();
         const noiseSpeed = 0.01;
@@ -99,7 +129,7 @@ loader.load(
             .set(globalScene.position, { y: '+=0.5' })
             .set([casque, clavier, popup, carte, editeur, sidebar, searchbar], { visible: false })
             .add('screen')
-            .from(screen.position, 1, { y: 5, ease: Power4.easeOut })
+            .from(screen.position, 1, { y: 5, ease: Back.easeOut.config(1.1) })
             .from(screen.rotation, 1, { z: -0.5, ease: Power4.easeOut }, "-=1")
             /*Noise*/
             .to(screen.position, 0.8, { y: screenClone.position.y + noiseSpeed, yoyo: true, repeat: -1, ease: Power2.easeInOut })
@@ -146,7 +176,7 @@ loader.load(
             .set(carte.position, { x: 0.472, y: -0.216, z: -3, ease: Power4.easeOut }, 'popup+=0.2')
             .to(carte.position, 1, { x: 0.472, y: 1.45, z: 0.36, ease: Power4.easeOut }, 'popup+=0.2')
             .from(carte.rotation, 1, { x: -5.1, y: -0.1, z: -0.01, ease: Power4.easeOut }, 'carte')
-            .to(carte.position, 1, { x: 0.472, y: -0.216, z: 0.46, ease: Power4.easeOut })
+            .to(carte.position, 1, { x: 0.472, y: -0.216, z: 0.46, ease: Back.easeOut.config(1.7) })
             /*Noise*/
             .to(carte.position, 0.8, { y: carteClone.position.y + noiseSpeed, yoyo: true, repeat: -1, ease: Power2.easeInOut })
             .to(carte.rotation, 0.8, { z: carteClone.rotation._z + noiseSpeed, yoyo: true, repeat: -1, ease: Power2.easeInOut }, '-=0.8')
@@ -184,10 +214,23 @@ loader.load(
             /*Noise*/
             .to(mug.position, 2, { y: mugClone.position.y + noiseSpeed * 8, yoyo: true, repeat: -1, ease: Power2.easeInOut })
             .to(mug.rotation, 2, { y: mugClone.rotation._y - noiseSpeed * 2, x: mugClone.rotation._x + noiseSpeed * 8, z: mugClone.rotation._z - noiseSpeed * 2, yoyo: true, repeat: -1, ease: Power2.easeInOut }, '-=2')
-            .add(mugTl)
+            .add(mugTl, 'mug')
+            .fromTo(carte.children[1].position, 3, { x: 0.401, y: 0.084 }, { x: '-=0.22', y: '+=0.03', yoyo: true, repeat: -1, delay: 8, repeatDelay: 8, ease: Linear.easeNone }, 'carte')
 
-        //mainTl.seek('lampe')
+        mainTl.seek('mug')
+
+        console.log(mug)
+
         //mainTl.timeScale(1.2)
+
+
+        //Coffee smoke particles
+        for (let i = 0; i < 10; i++) {
+            var sphere = createParticule();
+            coffeeParticules.add(sphere);
+        }
+
+        mug.add(coffeeParticules)
 
     },
     null,
@@ -196,10 +239,33 @@ loader.load(
     }
 );
 
-scene.add(light);
+
+var controls = new OrbitControls(camera, renderer.domElement);
+controls.update();
+
+
+//Add lights
+scene.add(hemisphereLight);
+scene.add(dirLight);
 
 const animate = function () {
     requestAnimationFrame(animate);
+
+
+    //Particules generator
+    if (coffeeParticules) {
+        coffeeParticules.children.forEach(function (p) {
+            p.param.velocity.add(p.param.acceleration);
+            p.position.add(p.param.velocity);
+            if (p.param.position.distanceTo(p.param.velocity) > 0.01) {
+                coffeeParticules.remove(p);
+                var sphere = createParticule();
+                coffeeParticules.add(sphere);
+            }
+        })
+    }
+
+    controls.update();
     renderer.render(scene, camera);
 };
 
