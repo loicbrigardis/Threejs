@@ -110,12 +110,11 @@ loader.load(
             }, '-=0.8')
             .to(mug.children[1].position, 0, { x: '-=0.035', y: '-=0.15', z: '-=0.060' }, '-=3')
 
-        console.log(mug.children[1])
 
         const mainTl = new TimelineMax();
         mainTl
             .set(globalScene.position, { y: '+=0.5' })
-            .set([casque, clavier, popup, carte, editeur, sidebar, searchbar], { visible: false })
+            .set([casque, pot, pot2, lampe, mug, clavier, popup, carte, editeur, sidebar, searchbar], { visible: false })
             .add('screen')
             .from(screen.position, 1, { y: 5, ease: Back.easeOut.config(1.1) })
             .from(screen.rotation, 1, { z: -0.5, ease: Power4.easeOut }, "-=1")
@@ -175,7 +174,7 @@ loader.load(
             .to(clavier.rotation, 0.8, { x: clavierClone.rotation._x - noiseSpeed * 2, z: clavierClone.rotation._z - noiseSpeed * 2, yoyo: true, repeat: -1, ease: Power2.easeInOut }, '-=2')
             //Pot1
             .add('pot')
-            .from(pot.position, 0.8, { x: -6, ease: Power2.easeOut })
+            .from(pot.position, 0.8, { x: -6, ease: Power2.easeOut, onStart: () => pot.visible = true })
             .from(pot.rotation, 0.8, { z: 2.6, y: -0.6, ease: Power2.easeOut }, '-=0.8')
             /*Noise*/
             .to(pot.position, 2, { y: potClone.position.y + noiseSpeed * 8, yoyo: true, repeat: -1, ease: Power2.easeInOut })
@@ -183,7 +182,9 @@ loader.load(
             .add(potTl, '-=3.5')
             //Pot2
             .add('pot2', '-=1')
-            .from(pot2.position, 0.8, { x: 6, ease: Power2.easeOut }, '-=1')
+            .from(pot2.position, 0.8, {
+                x: 6, ease: Power2.easeOut, onStart: () => pot2.visible = true
+            }, '-=1')
             .from(pot2.rotation, 0.8, { z: 2.6, y: -0.6, ease: Power2.easeOut }, '-=1')
             /*Noise*/
             .to(pot2.position, 2, { y: pot2Clone.position.y + noiseSpeed * 8, yoyo: true, repeat: -1, ease: Power2.easeInOut })
@@ -191,13 +192,13 @@ loader.load(
             .add(pot2Tl, '-=3')
             //Lampe
             .add('lampe')
-            .from(lampe.position, 1, { x: -6 })
+            .from(lampe.position, 1, { x: -6, onStart: () => lampe.visible = true })
             .from(lampe.rotation, 1, { y: 2 }, '-=1')
             /*Noise*/
             .to(lampe.position, 2, { y: lampeClone.position.y + noiseSpeed * 4, yoyo: true, repeat: -1, ease: Power2.easeInOut })
             .to(lampe.rotation, 2, { y: lampeClone.rotation._y + noiseSpeed * 2, x: lampeClone.rotation._x + noiseSpeed * 2, z: lampeClone.rotation._z - noiseSpeed * 2, yoyo: true, repeat: -1, ease: Power2.easeInOut }, '-=2')
             //mug
-            .from(mug.position, 0.8, { x: 6, ease: Power2.easeOut }, '-=2')
+            .from(mug.position, 0.8, { x: 6, onStart: () => mug.visible = true, ease: Power2.easeOut }, '-=2')
             .from(mug.rotation, 0.8, { y: 3, ease: Power2.easeOut }, '-=0.8')
             /*Noise*/
             .to(mug.position, 2, { y: mugClone.position.y + noiseSpeed * 8, yoyo: true, repeat: -1, ease: Power2.easeInOut })
