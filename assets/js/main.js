@@ -5,23 +5,21 @@ import TweenMax, { Power4, TimelineMax, Linear } from 'gsap/TweenMax';
 
 import { onWindowResize } from './resize';
 import { camera } from './camera';
-import { renderer, hemisphereLight, dirLight } from './renderer';
+import { renderer, ambientLight, dirLight } from './renderer';
 import { createParticule, coffeeMaterial } from './geometry';
 
 import mainScene from '../3d/mainScene.glb';
 
+//Variables
 const scene = new THREE.Scene();
 const coffeeParticules = new THREE.Group();
 const nbCoffeeParticules = 10;
+let mouseX = 0, mouseY = 0;
 
 //Visial Helpers
 const size = 10;
 const divisions = 10;
 const gridHelper = new THREE.GridHelper(size, divisions);
-
-//debuger chrome
-window.scene = scene;
-window.THREE = THREE;
 
 //scene.add(gridHelper);
 var helper = new THREE.CameraHelper(dirLight.shadow.camera);
@@ -39,7 +37,6 @@ function getRandomInt(max, min = 1) {
 const rand = (min, max) => min + Math.random() * (max - min);
 
 // Load a glTF resource
-
 var loader = new GLTFLoader();
 loader.load(
     mainScene,
@@ -107,7 +104,7 @@ loader.load(
             .to(mug.children[1].position, 3, {
                 x: -0.015, y: -0.09, z: -0.021, delay: getRandomInt(12, 4)
             })
-            .to(coffeeMaterial, 2, {
+            .to(coffeeMaterial, 1, {
                 opacity: 0, ease: Linear.easeNone, onComplete: function () {
                     coffeeMaterial.visible = false;
                 }
@@ -239,18 +236,21 @@ loader.load(
     }
 );
 
-
+//Camera controls
 var controls = new OrbitControls(camera, renderer.domElement);
-controls.update();
-
+controls.minPolarAngle = 1;
+controls.maxPolarAngle = 1.8;
+controls.minAzimuthAngle = -0.2;
+controls.maxAzimuthAngle = 0.2;
+controls.enableZoom = false;
+controls.enableKeys = false;
 
 //Add lights
-scene.add(hemisphereLight);
+scene.add(ambientLight);
 scene.add(dirLight);
 
 const animate = function () {
     requestAnimationFrame(animate);
-
 
     //Particules generator
     if (coffeeParticules) {
