@@ -3,9 +3,8 @@ import { OrbitControls } from '../../vendors/OrbitControls';
 import { GLTFLoader } from '../../vendors/GLTFLoader';
 import TweenMax, { Power4, TimelineMax, Linear } from 'gsap/TweenMax';
 
-import { onWindowResize } from './resize';
 import { camera } from './camera';
-import { renderer, ambientLight, dirLight } from './renderer';
+import { renderer, ambientLight, dirLight, onWindowResize } from './renderer';
 import { createParticule, coffeeMaterial } from './geometry';
 
 import mainScene from '../3d/mainScene.glb';
@@ -14,16 +13,7 @@ import mainScene from '../3d/mainScene.glb';
 const scene = new THREE.Scene();
 const coffeeParticules = new THREE.Group();
 const nbCoffeeParticules = 10;
-let mouseX = 0, mouseY = 0;
-
-//Visial Helpers
-const size = 10;
-const divisions = 10;
-const gridHelper = new THREE.GridHelper(size, divisions);
-
-//scene.add(gridHelper);
-var helper = new THREE.CameraHelper(dirLight.shadow.camera);
-//scene.add(helper);
+const noiseSpeed = 0.01;
 
 //Fn Helpers
 function item(gltf, nom) {
@@ -78,10 +68,10 @@ loader.load(
 
         const touchesTl = new TimelineMax();
         clavier.children[0].children.forEach(touche => {
-            let rand = getRandomInt(6, 3);
+            let random1 = getRandomInt(6, 3);
             touchesTl
-                .from(touche.position, rand, { x: getRandomInt(6, -6), y: getRandomInt(6, 0), z: getRandomInt(6, 0), ease: Power2.easeOut }, 0)
-                .from(touche.rotation, rand, { x: getRandomInt(12, -12), y: getRandomInt(12, -12), z: getRandomInt(12, -12), ease: Power2.easeOut }, 0)
+                .from(touche.position, random1, { x: getRandomInt(6, -6), y: getRandomInt(6, 0), z: getRandomInt(6, 0), ease: Power2.easeOut }, 0)
+                .from(touche.rotation, random1, { x: getRandomInt(12, -12), y: getRandomInt(12, -12), z: getRandomInt(12, -12), ease: Power2.easeOut }, 0)
         })
 
         const clavierTl = new TimelineMax();
@@ -102,7 +92,7 @@ loader.load(
         const mugTl = new TimelineMax({ repeat: -1 });
         mugTl
             .to(mug.children[1].position, 3, {
-                x: -0.015, y: -0.09, z: -0.021, delay: getRandomInt(12, 4)
+                x: '+=0.035', y: '+=0.15', z: '+=0.060', delay: getRandomInt(12, 4)
             })
             .to(coffeeMaterial, 1, {
                 opacity: 0, ease: Linear.easeNone, onComplete: function () {
@@ -118,10 +108,11 @@ loader.load(
                     coffeeMaterial.visible = true;
                 }
             }, '-=0.8')
-            .to(mug.children[1].position, 0, { x: 0.061, y: 0.104, z: 0.087 }, '-=3')
+            .to(mug.children[1].position, 0, { x: '-=0.035', y: '-=0.15', z: '-=0.060' }, '-=3')
+
+        console.log(mug.children[1])
 
         const mainTl = new TimelineMax();
-        const noiseSpeed = 0.01;
         mainTl
             .set(globalScene.position, { y: '+=0.5' })
             .set([casque, clavier, popup, carte, editeur, sidebar, searchbar], { visible: false })
@@ -214,9 +205,9 @@ loader.load(
             .add(mugTl, 'mug')
             .fromTo(carte.children[1].position, 3, { x: 0.401, y: 0.084 }, { x: '-=0.22', y: '+=0.03', yoyo: true, repeat: -1, delay: 8, repeatDelay: 8, ease: Linear.easeNone }, 'carte')
 
-        mainTl.seek('mug')
+        //mainTl.seek('mug')
 
-        console.log(mug)
+        //console.log(mug)
 
         //mainTl.timeScale(1.2)
 
@@ -238,10 +229,10 @@ loader.load(
 
 //Camera controls
 var controls = new OrbitControls(camera, renderer.domElement);
-controls.minPolarAngle = 1;
-controls.maxPolarAngle = 1.8;
-controls.minAzimuthAngle = -0.2;
-controls.maxAzimuthAngle = 0.2;
+controls.minPolarAngle = 0.8;
+controls.maxPolarAngle = 1.5;
+controls.minAzimuthAngle = -0.1;
+controls.maxAzimuthAngle = 0.1;
 controls.enableZoom = false;
 controls.enableKeys = false;
 
@@ -251,6 +242,8 @@ scene.add(dirLight);
 
 const animate = function () {
     requestAnimationFrame(animate);
+    //var ttt = new THREE.Vector3(0, Math.sin(0.01), 0);
+    //camera.position.add(ttt);
 
     //Particules generator
     if (coffeeParticules) {

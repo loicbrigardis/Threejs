@@ -1,12 +1,15 @@
 body {
     margin: 0;
     padding: 0; 
-    background-image: linear-gradient(to right bottom, #e1e6ed, #dde2e9, #d8dde4, #d4d9e0, #d0d5dc, #cfd8df, #cddbe2, #ccdee3, #cfe8e7, #d7f1e7, #e6f9e4, #fbffe1);
-    height: 8000px;
+    background-image: linear-gradient(to right, #acb2bb, #bcbfc6, #cbccd1, #d9d9dc, #e7e7e7);
 }
 
-#scene > canvas {
+canvas {
     width: 100vw;
     height: 100vh;
     display: block;
+}
+
+.main-container {
+    height: 8000px;
 }
