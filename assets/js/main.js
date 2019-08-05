@@ -1,5 +1,4 @@
 import * as THREE from '../../vendors/three.min';
-import { OrbitControls } from '../../vendors/OrbitControls';
 import { GLTFLoader } from '../../vendors/GLTFLoader';
 import TweenMax, { Power4, TimelineMax, Linear } from 'gsap/TweenMax';
 
@@ -14,6 +13,9 @@ const scene = new THREE.Scene();
 const coffeeParticules = new THREE.Group();
 const nbCoffeeParticules = 10;
 const noiseSpeed = 0.01;
+let mouseX = 0, mouseY = 0;
+let windowHalfX = window.innerWidth / 2;
+let windowHalfY = window.innerHeight / 2;
 
 //Fn Helpers
 function item(gltf, nom) {
@@ -38,6 +40,9 @@ loader.load(
             if (node.isMesh || node.isLight) node.receiveShadow = true;
         });
 
+        //gltf.scene.scale.set(300, 300, 300)
+
+        //gltf.scene.visible = false;
 
         scene.add(gltf.scene);
 
@@ -210,7 +215,7 @@ loader.load(
 
         //console.log(mug)
 
-        //mainTl.timeScale(1.2)
+        //mainTl.kill()
 
 
         //Coffee smoke particles
@@ -228,23 +233,62 @@ loader.load(
     }
 );
 
-//Camera controls
-var controls = new OrbitControls(camera, renderer.domElement);
-controls.minPolarAngle = 0.8;
-controls.maxPolarAngle = 1.5;
-controls.minAzimuthAngle = -0.1;
-controls.maxAzimuthAngle = 0.1;
-controls.enableZoom = false;
-controls.enableKeys = false;
+// var curve = new THREE.CatmullRomCurve3([
+//     new THREE.Vector3(0, 0, 0),
+//     new THREE.Vector3(1, 1, 0),
+//     new THREE.Vector3(2, 0, 0),
+//     new THREE.Vector3(1, -1, 0),
+//     new THREE.Vector3(-1, 1, 0),
+//     new THREE.Vector3(-2, 0, 0),
+//     new THREE.Vector3(-1, -1, 0)
+// ], true, 'centripetal');
+
+// var points = curve.getPoints(80);
+// var geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+// var material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+
+// var curveObject = new THREE.Line(geometry, material);
+
+// scene.add(curveObject);
+
+function onDocumentMouseMove(event) {
+    mouseX = event.clientX - windowHalfX;
+    mouseY = event.clientY - windowHalfY;
+}
+
+document.addEventListener('mousemove', onDocumentMouseMove, false);
 
 //Add lights
 scene.add(ambientLight);
 scene.add(dirLight);
 
+
+
+// var geometry = new THREE.PlaneGeometry(1, 0.1, 0.5);
+// var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+// var cube = new THREE.Mesh(geometry, material);
+// scene.add(cube);
+// console.log(cube)
+
+var counter = 0.0;
 const animate = function () {
     requestAnimationFrame(animate);
-    //var ttt = new THREE.Vector3(0, Math.sin(0.01), 0);
-    //camera.position.add(ttt);
+
+    // if (counter <= 1) {
+    //     var tangent = curve.getPoint(counter);
+    //     cube.position.x = tangent.x;
+    //     cube.position.y = tangent.y;
+
+    //     counter += 0.005;
+    // } else {
+    //     counter = 0;
+    // }
+
+    //Camera rotation
+    camera.position.x += (mouseX / 1000 - camera.position.x) * 0.05;
+    camera.position.y += (- mouseY / 1000 - camera.position.y) * 0.05;
+    camera.lookAt(scene.position);
 
     //Particules generator
     if (coffeeParticules) {
@@ -259,7 +303,7 @@ const animate = function () {
         })
     }
 
-    controls.update();
+    //controls.update();
     renderer.render(scene, camera);
 };
 
