@@ -114,7 +114,7 @@ loader.load(
         const mainTl = new TimelineMax();
         mainTl
             .set(globalScene.position, { y: '+=0.5' })
-            .set([casque, pot, pot2, lampe, mug, clavier, popup, carte, editeur, sidebar, searchbar], { visible: false })
+            .set([pot, pot2, lampe, mug, clavier, popup, carte, editeur, sidebar, searchbar], { visible: false })
             .add('screen')
             .from(screen.position, 1, { y: 5, ease: Back.easeOut.config(1.1) })
             .from(screen.rotation, 1, { z: -0.5, ease: Power4.easeOut }, "-=1")
@@ -206,7 +206,7 @@ loader.load(
             .add(mugTl, 'mug')
             .fromTo(carte.children[1].position, 3, { x: 0.401, y: 0.084 }, { x: '-=0.22', y: '+=0.03', yoyo: true, repeat: -1, delay: 8, repeatDelay: 8, ease: Linear.easeNone }, 'carte')
 
-        //mainTl.seek('mug')
+        //mainTl.totalProgress(1).kill()
 
         //console.log(mug)
 

@@ -13,3 +13,20 @@ canvas {
 .main-container {
     height: 8000px;
 }
+
+#scene {
+    position: relative;
+    height: 100vh;
+}
+
+#scene > h1{
+    width: 100%;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    font-size: 10vw;
+    position: absolute;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
