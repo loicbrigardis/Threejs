@@ -1,11 +1,11 @@
 import * as THREE from '../../vendors/three.min';
 import { camera } from './camera';
 
-const wWidth = document.documentElement.clientWidth;
-const wHeigth = document.documentElement.clientHeight;
+const wWidth = window.innerWidth;
+const wHeigth = window.innerHeight;
 
 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-renderer.setSize(wWidth, wHeigth);
+renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio)
 //renderer.setClearColor(0xD7D3D2);
 
@@ -26,9 +26,12 @@ dirLight.shadow.mapSize.width = 4096;
 dirLight.shadow.mapSize.height = 4096;
 
 function onWindowResize() {
-    camera.aspect = document.documentElement.clientWidth / document.documentElement.clientHeight;
+
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(document.documentElement.clientWidth, document.documentElement.clientHeight);
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
 }
 
 export { renderer, ambientLight, dirLight, onWindowResize };

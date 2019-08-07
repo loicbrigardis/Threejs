@@ -17,6 +17,11 @@ let mouseX = 0, mouseY = 0;
 let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
 
+//Selecteurs
+const $scene = document.querySelector('#scene > canvas');
+const $title = document.querySelector('.title');
+const $iconSroll = document.querySelector('.icon-scroll');
+
 //Fn Helpers
 function item(gltf, nom) {
     return gltf.scene.children.filter(item => item.name === nom)[0];
@@ -39,8 +44,6 @@ loader.load(
             if (node.isMesh || node.isLight) node.castShadow = true;
             if (node.isMesh || node.isLight) node.receiveShadow = true;
         });
-
-        //gltf.scene.scale.set(300, 300, 300)
 
         //gltf.scene.visible = false;
 
@@ -209,14 +212,12 @@ loader.load(
             .to(mug.position, 2, { y: mugClone.position.y + noiseSpeed * 8, yoyo: true, repeat: -1, ease: Power2.easeInOut })
             .to(mug.rotation, 2, { y: mugClone.rotation._y - noiseSpeed * 2, x: mugClone.rotation._x + noiseSpeed * 8, z: mugClone.rotation._z - noiseSpeed * 2, yoyo: true, repeat: -1, ease: Power2.easeInOut }, '-=2')
             .add(mugTl, 'mug')
-            .fromTo(carte.children[1].position, 3, { x: 0.401, y: 0.084 }, { x: '-=0.22', y: '+=0.03', yoyo: true, repeat: -1, delay: 8, repeatDelay: 8, ease: Linear.easeNone }, 'carte')
+            .fromTo(carte.children[0].position, 3, { x: 0.401, y: 0.084 }, { x: '-=0.22', y: '+=0.03', yoyo: true, repeat: -1, delay: 8, repeatDelay: 8, ease: Linear.easeNone }, 'carte')
+            .to($title, 1.4, { autoAlpha: 1, y: '100%', ease: Power4.easeOut })
+        //.to($iconScroll, 1.4, { autoAlpha: 1, y: '-50%', ease: Power4.easeOut }, '-=1.4')
 
-        //mainTl.totalProgress(1).kill()
-
-        //console.log(mug)
-
-        //mainTl.kill()
-
+        //mainTl.seek('mug-=3')
+        //mainTl.totalProgress(1).kill();
 
         //Coffee smoke particles
         for (let i = 0; i < 10; i++) {
@@ -226,6 +227,24 @@ loader.load(
 
         mug.add(coffeeParticules)
 
+        // TWEEN
+        const controller = new ScrollMagic.Controller();
+
+        var tween = new TimelineMax();
+        tween.to(popup.position, 1.4, { z: camera.position.z });
+
+        //tween.add()
+        // create a scene
+        new ScrollMagic.Scene({
+            triggerHook: "onLeave",
+            duration: '200%',
+            offset: 0
+        })
+            .setPin($scene)
+            .setTween(tween)
+            .addIndicators()
+            .addTo(controller);
+
     },
     null,
     function (error) {
@@ -233,30 +252,15 @@ loader.load(
     }
 );
 
-// var curve = new THREE.CatmullRomCurve3([
-//     new THREE.Vector3(0, 0, 0),
-//     new THREE.Vector3(1, 1, 0),
-//     new THREE.Vector3(2, 0, 0),
-//     new THREE.Vector3(1, -1, 0),
-//     new THREE.Vector3(-1, 1, 0),
-//     new THREE.Vector3(-2, 0, 0),
-//     new THREE.Vector3(-1, -1, 0)
-// ], true, 'centripetal');
+//TweenMax.to(scene.position, 4, { z: 3, ease: Power4.easeIn })
 
-// var points = curve.getPoints(80);
-// var geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-// var material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
 
-// var curveObject = new THREE.Line(geometry, material);
-
-// scene.add(curveObject);
-
+//Mouse effect rotation
 function onDocumentMouseMove(event) {
     mouseX = event.clientX - windowHalfX;
     mouseY = event.clientY - windowHalfY;
 }
-
 document.addEventListener('mousemove', onDocumentMouseMove, false);
 
 //Add lights
@@ -264,33 +268,15 @@ scene.add(ambientLight);
 scene.add(dirLight);
 
 
-
-// var geometry = new THREE.PlaneGeometry(1, 0.1, 0.5);
-// var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-// var cube = new THREE.Mesh(geometry, material);
-// scene.add(cube);
-// console.log(cube)
-
-var counter = 0.0;
 const animate = function () {
     requestAnimationFrame(animate);
-
-    // if (counter <= 1) {
-    //     var tangent = curve.getPoint(counter);
-    //     cube.position.x = tangent.x;
-    //     cube.position.y = tangent.y;
-
-    //     counter += 0.005;
-    // } else {
-    //     counter = 0;
-    // }
 
     //Camera rotation
     camera.position.x += (mouseX / 1000 - camera.position.x) * 0.05;
     camera.position.y += (- mouseY / 1000 - camera.position.y) * 0.05;
     camera.lookAt(scene.position);
 
-    //Particules generator
+    //Particules coffee generator
     if (coffeeParticules) {
         coffeeParticules.children.forEach(function (p) {
             p.param.velocity.add(p.param.acceleration);
