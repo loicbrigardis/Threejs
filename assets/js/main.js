@@ -50,7 +50,6 @@ loader.load(
         scene.add(gltf.scene);
 
         const globalScene = gltf.scene,
-            casque = item(gltf, 'casque'),
             lampe = item(gltf, 'lampe'),
             lampeClone = { position: { ...lampe.position }, rotation: { ...lampe.rotation }, scale: { ...lampe.scale } },
             pot2 = item(gltf, 'pot2'),
@@ -65,6 +64,7 @@ loader.load(
             carteClone = { position: { ...carte.position }, rotation: { ...carte.rotation }, scale: { ...carte.scale } },
             popup = item(gltf, 'popup'),
             popupClone = { position: { ...popup.position }, rotation: { ...popup.rotation }, scale: { ...popup.scale } },
+            casque = popup.children[0],
             searchbar = item(gltf, 'searchbar'),
             searchbarClone = { position: { ...searchbar.position }, rotation: { ...searchbar.rotation }, scale: { ...searchbar.scale } },
             editeur = item(gltf, 'editeur'),
@@ -73,6 +73,7 @@ loader.load(
             sidebarClone = { position: { ...sidebar.position }, rotation: { ...sidebar.rotation }, scale: { ...sidebar.scale } },
             screen = item(gltf, 'screen'),
             screenClone = { position: { ...screen.position }, rotation: { ...screen.rotation }, scale: { ...screen.scale } };
+
 
         const touchesTl = new TimelineMax();
         clavier.children[0].children.forEach(touche => {
@@ -213,10 +214,10 @@ loader.load(
             .to(mug.rotation, 2, { y: mugClone.rotation._y - noiseSpeed * 2, x: mugClone.rotation._x + noiseSpeed * 8, z: mugClone.rotation._z - noiseSpeed * 2, yoyo: true, repeat: -1, ease: Power2.easeInOut }, '-=2')
             .add(mugTl, 'mug')
             .fromTo(carte.children[0].position, 3, { x: 0.401, y: 0.084 }, { x: '-=0.22', y: '+=0.03', yoyo: true, repeat: -1, delay: 8, repeatDelay: 8, ease: Linear.easeNone }, 'carte')
-            .to($title, 1.4, { autoAlpha: 1, y: '100%', ease: Power4.easeOut })
-        //.to($iconScroll, 1.4, { autoAlpha: 1, y: '-50%', ease: Power4.easeOut }, '-=1.4')
+            .to($title, 1.4, {
+                autoAlpha: 1, y: '100%', ease: Power4.easeOut
+            });
 
-        //mainTl.seek('mug-=3')
         //mainTl.totalProgress(1).kill();
 
         //Coffee smoke particles
@@ -228,22 +229,15 @@ loader.load(
         mug.add(coffeeParticules)
 
         // TWEEN
-        const controller = new ScrollMagic.Controller();
+        // const controller = new ScrollMagic.Controller();
 
-        var tween = new TimelineMax();
-        tween.to(popup.position, 1.4, { z: camera.position.z });
-
-        //tween.add()
-        // create a scene
-        new ScrollMagic.Scene({
-            triggerHook: "onLeave",
-            duration: '200%',
-            offset: 0
-        })
-            .setPin($scene)
-            .setTween(tween)
-            .addIndicators()
-            .addTo(controller);
+        // new ScrollMagic.Scene({
+        //     triggerHook: "onLeave",
+        //     duration: '200%',
+        //     offset: 0
+        // })
+        //     .setPin($scene)
+        //     .addTo(controller);
 
     },
     null,
@@ -251,10 +245,6 @@ loader.load(
         console.log('An error happened ', error);
     }
 );
-
-//TweenMax.to(scene.position, 4, { z: 3, ease: Power4.easeIn })
-
-
 
 //Mouse effect rotation
 function onDocumentMouseMove(event) {
