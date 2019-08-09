@@ -33,8 +33,20 @@ function getRandomInt(max, min = 1) {
 }
 const rand = (min, max) => min + Math.random() * (max - min);
 
+//Load manager
+var manager = new THREE.LoadingManager();
+manager.onStart = function (url, itemsLoaded, itemsTotal) {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.classList.add('fade-out');
+};
+
+manager.onLoad = function () {
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.remove();
+}
+
 // Load a glTF resource
-var loader = new GLTFLoader();
+var loader = new GLTFLoader(manager);
 loader.load(
     mainScene,
     function (gltf) {
@@ -214,9 +226,6 @@ loader.load(
             .to(mug.rotation, 2, { y: mugClone.rotation._y - noiseSpeed * 2, x: mugClone.rotation._x + noiseSpeed * 8, z: mugClone.rotation._z - noiseSpeed * 2, yoyo: true, repeat: -1, ease: Power2.easeInOut }, '-=2')
             .add(mugTl, 'mug')
             .fromTo(carte.children[0].position, 3, { x: 0.401, y: 0.084 }, { x: '-=0.22', y: '+=0.03', yoyo: true, repeat: -1, delay: 8, repeatDelay: 8, ease: Linear.easeNone }, 'carte')
-            .to($title, 1.4, {
-                autoAlpha: 1, y: '100%', ease: Power4.easeOut
-            });
 
         //mainTl.totalProgress(1).kill();
 
@@ -227,17 +236,6 @@ loader.load(
         }
 
         mug.add(coffeeParticules)
-
-        // TWEEN
-        // const controller = new ScrollMagic.Controller();
-
-        // new ScrollMagic.Scene({
-        //     triggerHook: "onLeave",
-        //     duration: '200%',
-        //     offset: 0
-        // })
-        //     .setPin($scene)
-        //     .addTo(controller);
 
     },
     null,
